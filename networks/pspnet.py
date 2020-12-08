@@ -7,6 +7,9 @@ import functools
 from libs import InPlaceABN, InPlaceABNSync
 # BatchNorm2d = functools.partial(InPlaceABN, activation='identity')
 BatchNorm2d = functools.partial(InPlaceABNSync, activation='none')
+# from torch.nn import BatchNorm2d
+# InPlaceABN = BatchNorm2d
+# InPlaceABNSync = BatchNorm2d
 
 def conv3x3(in_planes, out_planes, stride=1):
     "3x3 convolution with padding"

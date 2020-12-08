@@ -87,7 +87,7 @@ def predict_sliding(net, image, tile_size, classes, flip_evaluation, recurrence)
     return full_probs
 
 def predict_whole(net, image, tile_size, recurrence):
-    image = torch.from_numpy(image)
+    # image = torch.from_numpy(image)
     interp = nn.Upsample(size=tile_size, mode='bilinear', align_corners=True)
     prediction = net(image.cuda())
     if isinstance(prediction, list):
@@ -172,16 +172,17 @@ def evaluate_main(model, loader, input_size, num_classes, whole = False, recurre
         size = size[0].numpy()
         with torch.no_grad():
             if whole:
-                output = predict_multiscale(model, image, input_size, [1.0], num_classes, False, recurrence)
+                # output = predict_multiscale(model, image, input_size, [1.0], num_classes, False, recurrence)
+                output = predict_whole(model, image, input_size, recurrence)
             else:
                 output = predict_sliding(model, image.numpy(), input_size, num_classes, False, recurrence)
 
         seg_pred = np.asarray(np.argmax(output, axis=2), dtype=np.uint8)
         if type == 'test': seg_pred = id2trainId(seg_pred, id_to_trainid, reverse=True)
 
-        output_im = PILImage.fromarray(seg_pred)
-        output_im.putpalette(palette)
-        output_im.save('outputs/'+name[0]+'.png')
+        # output_im = PILImage.fromarray(seg_pred)
+        # output_im.putpalette(palette)
+        # output_im.save('outputs/'+name[0]+'.png')
 
         if type == 'val':
             seg_gt = np.asarray(label[0].numpy()[:size[0],:size[1]], dtype=np.int)
