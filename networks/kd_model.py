@@ -7,7 +7,7 @@ import torch.backends.cudnn as cudnn
 
 from networks.pspnet import Res_pspnet, BasicBlock, Bottleneck
 from networks.sagan_models import Discriminator
-from utils.criterion import CriterionDSN, CriterionKD, CriterionAdv, CriterionAdvForG, CriterionAdditionalGP, CriterionIFV
+from utils.criterion import CriterionDSN, CriterionKD, CriterionAdv, CriterionAdvForG, CriterionAdditionalGP, CriterionIFV, CriterionPairWiseforWholeFeatAfterPool
 
 def load_S_model(args, model):
     logging.info("------------")
@@ -109,9 +109,12 @@ class NetModel():
             self.criterion_adv_for_G = CriterionAdvForG(args.adv_loss_type).cuda()
         if args.ifv:
             self.criterion_ifv = CriterionIFV(classes=args.num_classes).cuda()
+        if args.pa:
+            self.criterion_pa = CriterionPairWiseforWholeFeatAfterPool(args.pool_scale, -1).cuda()
 
         self.G_loss, self.D_loss = 0.0, 0.0
         self.mc_G_loss, self.kd_G_loss, self.adv_G_loss, self.ifv_G_loss = 0.0, 0.0, 0.0, 0.0
+        self.pa_G_loss = 0.0
 
         cudnn.deterministic = True
         cudnn.benchmark = False
@@ -152,6 +155,10 @@ class NetModel():
             temp = args.lambda_ifv*self.criterion_ifv(self.preds_S, self.preds_T, self.labels)
             self.ifv_G_loss = temp.item()
             g_loss = g_loss + temp
+        if args.pa:
+            temp = args.lambad_pa*self.criterion_pa(self.preds_S, self.preds_T)
+            self.pa_G_loss = temp.item()
+            g_loss = g_loss + temp
         g_loss.backward()
         self.G_loss = g_loss.item()
 
@@ -173,9 +180,9 @@ class NetModel():
             self.D_solver.step()
 
     def print_info(self, step):
-        logging.info('step:{:5d} G_lr:{:.6f} G_loss:{:.5f}(mc:{:.5f} kd:{:.5f} adv:{:.5f} ifv:{:5f}) D_lr:{:.6f} D_loss:{:.5f}'.format(
+        logging.info('step:{:5d} G_lr:{:.6f} G_loss:{:.5f}(mc:{:.5f} kd:{:.5f} adv:{:.5f} ifv:{:5f} pa:{:5f}) D_lr:{:.6f} D_loss:{:.5f}'.format(
                         step, self.G_solver.param_groups[-1]['lr'], self.G_loss,
-                        self.mc_G_loss, self.kd_G_loss, self.adv_G_loss, self.ifv_G_loss,
+                        self.mc_G_loss, self.kd_G_loss, self.adv_G_loss, self.ifv_G_loss, self.pa_G_loss
                         self.D_solver.param_groups[-1]['lr'], self.D_loss))
 
     def save_ckpt(self, step):

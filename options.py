@@ -88,6 +88,10 @@ class TrainOptions():
         parser.add_argument("--kd", type=str2bool, default='True')
         parser.add_argument("--lambda-kd", type=float, default=10.0, help="lambda_kd")
 
+        parser.add_argument("--pa", type=str2bool, default='True')
+        parser.add_argument("--lambda-pa", type=float, default=0.5, help="lambda_kd")
+        parser.add_argument('--pool-scale', default=0.5, type=float, help='')
+
         parser.add_argument("--adv", type=str2bool, default='True')
         parser.add_argument("--lambda-adv", type=float, default=0.001, help="lambda_adv")
         parser.add_argument("--preprocess-GAN-mode", type=int, default=1, help="preprocess-GAN-mode should be tanh or bn")
