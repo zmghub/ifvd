@@ -4,6 +4,7 @@ import os.path as osp
 import numpy as np
 import random
 import cv2
+import mc
 
 class CSTrainValSet(data.Dataset):
     def __init__(self, root, list_path, max_iters=None, crop_size=(321, 321), scale=True, mirror=True, ignore_label=255):
@@ -35,9 +36,17 @@ class CSTrainValSet(data.Dataset):
                               18: ignore_label, 19: 6, 20: 7, 21: 8, 22: 9, 23: 10, 24: 11, 25: 12, 26: 13, 27: 14,
                               28: 15, 29: ignore_label, 30: ignore_label, 31: 16, 32: 17, 33: 18}
         print('{} images are loaded!'.format(len(self.img_ids)))
+        self.initialized = False
 
     def __len__(self):
         return len(self.files)
+
+    def _init_memcached(self):
+        if not self.initialized:
+            server_list_config_file = "/mnt/lustre/share/memcached_client/server_list.conf"
+            client_config_file = "/mnt/lustre/share/memcached_client/client.conf"
+            self.mclient = mc.MemcachedClient.GetInstance(server_list_config_file, client_config_file)
+            self.initialized = True
 
     def generate_scale_label(self, image, label):
         f_scale = 0.7 + random.randint(0, 14) / 10.0
@@ -57,8 +66,22 @@ class CSTrainValSet(data.Dataset):
 
     def __getitem__(self, index):
         datafiles = self.files[index]
-        image = cv2.imread(datafiles["img"], cv2.IMREAD_COLOR)
-        label = cv2.imread(datafiles["label"], cv2.IMREAD_GRAYSCALE)
+        # image = cv2.imread(datafiles["img"], cv2.IMREAD_COLOR)
+        # label = cv2.imread(datafiles["label"], cv2.IMREAD_GRAYSCALE)
+
+        ## memcached
+        self._init_memcached()
+        image_value = mc.pyvector()
+        self.mclient.Get(datafiles["img"], image_value)
+        image_value_str = mc.ConvertBuffer(image_value)
+        img_np = np.frombuffer(image_value_str, np.uint8)
+        image = cv2.imdecode(img_np, cv2.IMREAD_COLOR)
+        label_value = mc.pyvector()
+        self.mclient.Get(datafiles["label"], label_value)
+        label_value_str = mc.ConvertBuffer(label_value)
+        label_np = np.frombuffer(label_value_str, np.uint8)
+        label = cv2.imdecode(label_np, cv2.IMREAD_GRAYSCALE)
+
         label = self.id2trainId(label)
         size = image.shape
         name = datafiles["name"]
