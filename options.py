@@ -35,7 +35,7 @@ LEARNING_RATE = 1e-2
 WEIGHT_DECAY = 0.0005
 
 # save params
-SAVE_CKPT_START = 40000
+SAVE_CKPT_START = 30000
 SAVE_CKPT_EVERY = 200
 
 def log_init(log_dir, name='log'):

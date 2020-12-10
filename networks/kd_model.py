@@ -156,7 +156,7 @@ class NetModel():
             self.ifv_G_loss = temp.item()
             g_loss = g_loss + temp
         if args.pa:
-            temp = args.lambad_pa*self.criterion_pa(self.preds_S, self.preds_T)
+            temp = args.lambda_pa*self.criterion_pa(self.preds_S, self.preds_T)
             self.pa_G_loss = temp.item()
             g_loss = g_loss + temp
         g_loss.backward()
@@ -182,7 +182,7 @@ class NetModel():
     def print_info(self, step):
         logging.info('step:{:5d} G_lr:{:.6f} G_loss:{:.5f}(mc:{:.5f} kd:{:.5f} adv:{:.5f} ifv:{:5f} pa:{:5f}) D_lr:{:.6f} D_loss:{:.5f}'.format(
                         step, self.G_solver.param_groups[-1]['lr'], self.G_loss,
-                        self.mc_G_loss, self.kd_G_loss, self.adv_G_loss, self.ifv_G_loss, self.pa_G_loss
+                        self.mc_G_loss, self.kd_G_loss, self.adv_G_loss, self.ifv_G_loss, self.pa_G_loss,
                         self.D_solver.param_groups[-1]['lr'], self.D_loss))
 
     def save_ckpt(self, step):
