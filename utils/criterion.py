@@ -139,6 +139,7 @@ class CriterionAdditionalGP(nn.Module):
 
         real_images = d_in_T[0]
         fake_images = d_in_S[0]
+        #print(real_images.shape,fake_images.shape,torch.max(real_images))
         # Compute gradient penalty
         alpha = torch.rand(real_images.size(0), 1, 1, 1).cuda().expand_as(real_images)
         interpolated = Variable(alpha * real_images.data + (1 - alpha) * fake_images.data, requires_grad=True)

@@ -25,7 +25,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
 h, w = map(int, args.input_size.split(','))
 trainloader = data.DataLoader(CSTrainValSet(args.data_dir, args.data_list, max_iters=args.num_steps*args.batch_size, 
                                             crop_size=(h, w), scale=args.random_scale, mirror=args.random_mirror), 
-                                            batch_size=args.batch_size, shuffle=True, num_workers=4, pin_memory=True)
+                                            batch_size=args.batch_size, shuffle=True, num_workers=1, pin_memory=True)
 valloader = data.DataLoader(CSTrainValSet(args.data_dir, args.data_listval, crop_size=(1024, 2048), scale=False, mirror=False),
                             batch_size=1, shuffle=False, pin_memory=True)
 # model

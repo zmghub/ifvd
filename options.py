@@ -35,8 +35,8 @@ LEARNING_RATE = 1e-2
 WEIGHT_DECAY = 0.0005
 
 # save params
-SAVE_CKPT_START = 36000
-SAVE_CKPT_EVERY = 200
+SAVE_CKPT_START = 30000
+SAVE_CKPT_EVERY = 1000
 
 def log_init(log_dir, name='log'):
     time_cur = time.strftime("%Y-%m-%d_%H:%M:%S", time.localtime())
