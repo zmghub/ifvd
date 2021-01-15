@@ -161,7 +161,7 @@ def evaluate_main(model, loader, input_size, num_classes, whole = False, recurre
 
     if not os.path.exists('outputs'):
         os.makedirs('outputs')
-
+    fi = open('outputs/log.txt','w')
     for index, batch in enumerate(loader):
         if index % 100 == 0:
             print('%d processd'%(index))
@@ -189,7 +189,15 @@ def evaluate_main(model, loader, input_size, num_classes, whole = False, recurre
             ignore_index = seg_gt != 255
             seg_gt = seg_gt[ignore_index]
             seg_pred = seg_pred[ignore_index]
+            tmp_confusion = get_confusion_matrix(seg_gt, seg_pred, num_classes)
             confusion_matrix += get_confusion_matrix(seg_gt, seg_pred, num_classes)
+        tmp_pos = tmp_confusion.sum(1)
+        tmp_res = tmp_confusion.sum(0)
+        tmp_tp = np.diag(tmp_confusion)
+        tmp_iu = (tmp_tp / np.maximum(1.0, tmp_pos + tmp_res - tmp_tp))
+        tmp_miou = tmp_iu.mean()
+        fi.write(str(name)+' '+str(tmp_miou)+'\n')
+        fi.flush()
 
     if type == 'val':
         pos = confusion_matrix.sum(1)
