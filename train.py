@@ -20,7 +20,8 @@ torch.cuda.manual_seed_all(0)
 
 args = TrainOptions().initialize()
 # device
-os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
+#os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
+print('debug gpu: ',os.environ["CUDA_VISIBLE_DEVICES"])
 # data
 h, w = map(int, args.input_size.split(','))
 trainloader = data.DataLoader(CSTrainValSet(args.data_dir, args.data_list, max_iters=args.num_steps*args.batch_size, 

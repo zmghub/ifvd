@@ -173,7 +173,10 @@ class NetModel():
         d_loss = args.lambda_d*self.criterion_adv(self.D_model(self.preds_S[0].detach()), self.D_model(self.preds_T[0].detach()))
         if args.adv_loss_type == 'wgan-gp': wgan_gp = args.lambda_d*self.criterion_AdditionalGP(self.preds_S, self.preds_T)
         d_loss += wgan_gp
-        d_loss.backward()
+        wgan_gp.backward()
+        for k,v in self.D_model.named_parameters():
+            print(k,v.grad)
+            raise ValueError
         self.D_loss = d_loss.item()
 
     def optimize_parameters(self):
